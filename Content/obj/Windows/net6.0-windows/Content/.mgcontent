@@ -4,11 +4,11 @@
   <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
-    <File>D:/URFU/Programming/C# 2 часть/GroundBattle/GroundBattle/Content/Ellipse.png</File>
-    <File>D:/URFU/Programming/C# 2 часть/GroundBattle/GroundBattle/Content/File.spritefont</File>
-    <File>D:/URFU/Programming/C# 2 часть/GroundBattle/GroundBattle/Content/Ground.png</File>
-    <File>D:/URFU/Programming/C# 2 часть/GroundBattle/GroundBattle/Content/Player.png</File>
-    <File>D:/URFU/Programming/C# 2 часть/GroundBattle/GroundBattle/Content/SmallMonster.png</File>
+    <File>D:/URFU/Programming/C# 2 часть/Time-Warp-Adventures/Content/Ellipse.png</File>
+    <File>D:/URFU/Programming/C# 2 часть/Time-Warp-Adventures/Content/File.spritefont</File>
+    <File>D:/URFU/Programming/C# 2 часть/Time-Warp-Adventures/Content/Ground.png</File>
+    <File>D:/URFU/Programming/C# 2 часть/Time-Warp-Adventures/Content/Player.png</File>
+    <File>D:/URFU/Programming/C# 2 часть/Time-Warp-Adventures/Content/SmallMonster.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />

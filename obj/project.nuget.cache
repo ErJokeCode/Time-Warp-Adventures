@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ebSG5rs1qZOaG1p1Lbkb8IqJMobeI8Ek4U8X6cMGydWVTGtjgY1R0tecKKabaEWvRP2/g3JwrtYu6S8A8wMyuw==",
+  "dgSpecHash": "KuRA6S8eSf/gDnIzbydOFiWE+R0UriE+iq/VZAiewKGFU0dc9WaPNAJqWYQeknosS/2lGV4XLA4iGyw1ajid0A==",
   "success": true,
-  "projectFilePath": "D:\\URFU\\Programming\\C# 2 часть\\GroundBattle\\GroundBattle\\GroundBattle.csproj",
+  "projectFilePath": "D:\\URFU\\Programming\\C# 2 часть\\Time-Warp-Adventures\\TimeWarpAdventures.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\eriks\\.nuget\\packages\\libuv\\1.9.1\\libuv.1.9.1.nupkg.sha512",
     "C:\\Users\\eriks\\.nuget\\packages\\microsoft.codeanalysis.analyzers\\1.1.0\\microsoft.codeanalysis.analyzers.1.1.0.nupkg.sha512",

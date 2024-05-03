@@ -7537,11 +7537,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\URFU\\Programming\\C# 2 часть\\GroundBattle\\GroundBattle\\GroundBattle.csproj",
-      "projectName": "GroundBattle",
-      "projectPath": "D:\\URFU\\Programming\\C# 2 часть\\GroundBattle\\GroundBattle\\GroundBattle.csproj",
+      "projectUniqueName": "D:\\URFU\\Programming\\C# 2 часть\\Time-Warp-Adventures\\TimeWarpAdventures.csproj",
+      "projectName": "TimeWarpAdventures",
+      "projectPath": "D:\\URFU\\Programming\\C# 2 часть\\Time-Warp-Adventures\\TimeWarpAdventures.csproj",
       "packagesPath": "C:\\Users\\eriks\\.nuget\\packages\\",
-      "outputPath": "D:\\URFU\\Programming\\C# 2 часть\\GroundBattle\\GroundBattle\\obj\\",
+      "outputPath": "D:\\URFU\\Programming\\C# 2 часть\\Time-Warp-Adventures\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\eriks\\AppData\\Roaming\\NuGet\\NuGet.Config",

@@ -2,10 +2,11 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using SharpDX.Direct2D1;
-using GroundBattle.Classes;
+using TimeWarpAdventures.Classes;
 using System;
+using TimeWarpAdventures.Contriller;
 
-namespace GroundBattle
+namespace TimeWarpAdventures
 {
     public class Game1 : Game
     {
@@ -47,13 +48,16 @@ namespace GroundBattle
             
 
             var player1 = new Player(Content.Load<Texture2D>("Player"), 1000, 10, 2, 30);
+            var player2 = new Player(Content.Load<Texture2D>("Player"), 700, 10, 2, 30);
+
             Ground.BackGround = Content.Load<Texture2D>("Ground");
 
             var town = new Town(100, 1, Content.Load<Texture2D>("Ellipse"));
             var monster = new Monster(Content.Load<Texture2D>("SmallMonster"), 0, 500);
 
             World.Players.Add(player1);
-            World.NowPlayer = 0;
+            World.Players.Add(player2);
+            World.NowPlayer = player1;
 
             World.Towns.Add(town);
             World.Monsters.Add(monster);
@@ -61,38 +65,10 @@ namespace GroundBattle
 
         protected override void Update(GameTime gameTime)
         {
-            if (!MainMenu.IsGameStart)
-                MainMenu.Update();
-
-            var directs = new System.Collections.Generic.List<Direction>();
-
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Pause))
-                MainMenu.IsGameStart = false;
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
-            {
-                directs.Add(Direction.Right); 
-            }   
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
-            {
-                directs.Add(Direction.Left);
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
-            {
-                directs.Add(Direction.Up);
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.Tab))
-            {
-                World.NewPlayer();
-            }
-
-            if (MainMenu.IsGameStart)
-            {
-                World.Update(directs);
-            }
+            Controller.Update();
             
             base.Update(gameTime);
         }
@@ -103,7 +79,7 @@ namespace GroundBattle
 
             _spriteBatch.Begin();
 
-            if (!MainMenu.IsGameStart)
+            if (MainMenu.IsOpenMenu())
                 MainMenu.Draw(_spriteBatch);
             else
                 World.Draw(_spriteBatch);

@@ -7,20 +7,22 @@ using System;
 using static TimeWarpAdventures.Game1;
 using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Contriller;
 internal class ControllerWorld
 {
     private static bool isHoldingTab = false;
 
-    public static void UpdateWorld()
+    public static void UpdateWorld(GameManager _gameManager)
     {
         var directs = GetDerects();
 
-        if (!MainMenu.IsOpenMenu())
-        {
-            World.Update(directs);
-        }
+        if (!World.IsPause())
+            World.Update(directs, _gameManager);
+
+        if (Keyboard.GetState().IsKeyDown(Keys.Home))
+            _gameManager.SaveGameState();
     }
 
     public static void ChangePlayer()
@@ -38,18 +40,15 @@ internal class ControllerWorld
     {
         var directs = new System.Collections.Generic.List<Direction>();
 
-        if (Keyboard.GetState().IsKeyDown(Keys.Right))
-        {
+        if (Keyboard.GetState().IsKeyDown(Keys.D))
             directs.Add(Direction.Right);
-        }
-        if (Keyboard.GetState().IsKeyDown(Keys.Left))
-        {
+
+        if (Keyboard.GetState().IsKeyDown(Keys.A))
             directs.Add(Direction.Left);
-        }
-        if (Keyboard.GetState().IsKeyDown(Keys.Up))
-        {
+
+        if (Keyboard.GetState().IsKeyDown(Keys.W))
             directs.Add(Direction.Up);
-        }
+
 
         return directs;
     }

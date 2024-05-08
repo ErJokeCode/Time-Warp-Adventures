@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using SharpDX.Direct2D1;
 using System.Security.Cryptography;
 using System.Reflection;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
@@ -27,9 +28,8 @@ namespace TimeWarpAdventures.Classes
     static class MainMenu
     {
         public static SpriteFont Font {  get; set; }
-        public static string[] MenuItems = { "main", "persons", "start" };
+        public static string[] MenuItems = { "Start", "SaveGame", "LoadGame" };
 
-        private static bool isOpenMenu = true;
         private static int selectedIndex { get; set; } = 0;
 
         public static void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch)
@@ -41,7 +41,7 @@ namespace TimeWarpAdventures.Classes
             }
         }
 
-        public static void Update(int navigate, Vector2 mousePosition, bool isClick = false)
+        public static void Update(int navigate, Vector2 mousePosition, GameManager _gameManager, bool isClick = false)
         {
             if (selectedIndex + navigate >= 0 && selectedIndex + navigate < MenuItems.Length)
                 selectedIndex += navigate;
@@ -51,27 +51,24 @@ namespace TimeWarpAdventures.Classes
             if(nowSelectedIndex != -1)
                 selectedIndex = nowSelectedIndex;
             if (isClick && nowSelectedIndex != -1)
-                HandleMenuSelection();
-
+                HandleMenuSelection(_gameManager);
         }
 
-        public static void HandleMenuSelection()
+        public static void HandleMenuSelection(GameManager _gameManager)
         {
             switch (selectedIndex)
             {
                 case 0:
+                    World.StartGame();
                     break;
                 case 1:
+                    _gameManager.SaveGameState();
                     break;
                 case 2:
-                    isOpenMenu = false;
+                    
                     break;
             }
         }
-
-        public static void OpenMenu() => isOpenMenu = true;
-
-        public static bool IsOpenMenu() => isOpenMenu;
 
         public static void СhangeSelectedIndex(int index) => selectedIndex = index;
 

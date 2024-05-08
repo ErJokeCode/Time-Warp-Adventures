@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using SpriteBatch = SharpDX.Direct2D1.SpriteBatch;
 using SharpDX.Direct2D1;
 using System;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {

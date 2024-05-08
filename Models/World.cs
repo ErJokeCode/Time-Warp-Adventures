@@ -9,22 +9,25 @@ using SharpDX.Direct3D9;
 using static TimeWarpAdventures.Game1;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using System.Threading;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
     public static class World
     {
+        private static bool pause = true;
+
         public static Player NowPlayer { get; set; }
 
         public static int WindowWidth { get; set; }
         public static int WindowHeight { get; set; }
         private static int width;
-        public static int Width 
-        { 
-            get {  return width; } 
+        public static int Width
+        {
+            get { return width; }
             set { width = value; }
         }
-        public static float PositionX {  get; set; }
+        public static float PositionX { get; set; }
         public static int LiteralBorder { get; set; }
 
         public static List<Player> Players = new List<Player>();
@@ -68,7 +71,7 @@ namespace TimeWarpAdventures.Classes
             velisityScroll = velosity;
             PositionX += velisityScroll;
 
-            foreach(Player player in Players)
+            foreach (Player player in Players)
             {
                 player.Position = new Vector2(player.Position.X - velosity, player.Position.Y);
             }
@@ -90,6 +93,25 @@ namespace TimeWarpAdventures.Classes
             return boxPlayer.Intersects(boxMonster);
         }
 
+        public static void DiedPlayer()
+        {
+            var index = Players.IndexOf(NowPlayer);
+            Players.RemoveAt(index);
+            if (Players.Count > 0)
+                NowPlayer = Players[index % Players.Count];
+            else
+                StartGame();
+        }
+
+        public static void StartGame()
+        {
+            if (Players.Count > 0) pause = false;
+        }
+
+        public static void StopGame() => pause = true;
+
+        public static bool IsPause() => pause;
+
 
         public static void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
         {
@@ -105,9 +127,10 @@ namespace TimeWarpAdventures.Classes
                 player.Draw(spriteBatch);
         }
 
-        public static void Update(List<Direction> directs)
+        public static void Update(List<Direction> directs, GameManager _gameManager)
         {
-            
+            var gameState = _gameManager.GetState();
+            gameState.Position = NowPlayer.Position;
 
             Ground.Update();
 
@@ -117,7 +140,7 @@ namespace TimeWarpAdventures.Classes
             foreach (var monster in Monsters)
             {
                 if (CollideMonsterWithPlayer(monster))
-                    NowPlayer.Velosity -= new Vector2(2 * NowPlayer.Velosity.X + monster.Velosity, 100);
+                    NowPlayer.MonsterKick(monster);
                 monster.Update();
             }
                 

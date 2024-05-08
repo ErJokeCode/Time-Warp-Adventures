@@ -7,6 +7,7 @@ using System;
 using static TimeWarpAdventures.Game1;
 using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Contriller;
 
@@ -14,29 +15,27 @@ class ControllerMenu
 {
     private static bool isHoldingInMenu = false;
 
-    public static void UpdateMenu()
+    public static void UpdateMenu(GameManager _gameManager)
     {
         var navigate = GetNavigating();
 
-        if (MainMenu.IsOpenMenu())
+        if (World.IsPause())
         {
             var mouseState = Mouse.GetState();
             var mousePosition = new Vector2(mouseState.X, mouseState.Y);
 
             if (mouseState.LeftButton == ButtonState.Pressed)
-                MainMenu.Update(navigate, mousePosition, true);
+                MainMenu.Update(navigate, mousePosition, _gameManager, true);
             else
-                MainMenu.Update(navigate, mousePosition);
+                MainMenu.Update(navigate, mousePosition, _gameManager);
 
             if (Keyboard.GetState().IsKeyDown(Keys.Enter))
-            {
-                MainMenu.HandleMenuSelection();
-            }
+                MainMenu.HandleMenuSelection(_gameManager);
         }
 
 
         if (Keyboard.GetState().IsKeyDown(Keys.Pause))
-            MainMenu.OpenMenu();
+            World.StopGame();
     }
 
     private static int GetNavigating()

@@ -2,16 +2,19 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using static TimeWarpAdventures.Game1;
 using System.Diagnostics.Contracts;
+using System.Threading;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
     public class Player
     {
+        public int Health { get; set; } = 100; 
+
         private Vector2 position;
         public Vector2 Position 
         { 
@@ -27,16 +30,16 @@ namespace TimeWarpAdventures.Classes
 
         private Color color = Color.White;
         private int maxVelosity;
-        private int a;
+        private int acceleration;
         private int jump;
 
         private int widthWindow = World.WindowWidth;
 
-        public Player(Texture2D backGround, int startPosX, int maxVelosity, int a, int jump) 
+        public Player(Texture2D backGround, int startPosX, int maxVelosity, int acceleration, int jump) 
         {
             BackGround = backGround;
             this.maxVelosity = maxVelosity;
-            this.a = a;
+            this.acceleration = acceleration;
             this.jump = jump;
             Position = new Vector2(startPosX + World.PositionX, Ground.Top - BackGround.Height);
         }
@@ -47,13 +50,13 @@ namespace TimeWarpAdventures.Classes
             foreach(var dir in dirs)
             {
                 if (dir == Direction.Left)
-                    velocCorect.X -= a;
+                    velocCorect.X -= acceleration;
                 if (dir == Direction.Right)
-                    velocCorect.X += a;
+                    velocCorect.X += acceleration;
                 if (dir == Direction.Up)
                     velocCorect.Y -= jump;
                 if (dir == Direction.Down)
-                    velocCorect.Y += a;
+                    velocCorect.Y += acceleration;
             }
             return velocCorect;
         }
@@ -69,12 +72,12 @@ namespace TimeWarpAdventures.Classes
 
         private void UpdatePosition(Vector2 cortrect) 
         {
-
+            var friction = new Vector2(0.9f, 1);
             if (IsTouchingGround())
             {
                 if (Velosity.Y > 0)
                     cortrect.Y = -Velosity.Y;
-                Velosity = Velosity * new Vector2(0.9f, 1);
+                Velosity = Velosity * friction;
             }
             else
                 cortrect = new Vector2(0, Ground.Gravity.Y);
@@ -118,6 +121,14 @@ namespace TimeWarpAdventures.Classes
             }
             else
                 World.NoScroll();
+        }
+
+        public void MonsterKick(Monster monster)
+        {
+            Velosity -= new Vector2(Velosity.X - 100 * monster.Velosity.X, 500);
+            Health -= monster.Hit;
+            if (Health < 0)
+                World.DiedPlayer();
         }
 
         public void Draw(SpriteBatch spriteBatch)

@@ -2,16 +2,19 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using static TimeWarpAdventures.Game1;
 using System.Diagnostics.Contracts;
+using System.Threading;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
     public class Player
     {
+        public int Health { get; set; } = 100; 
+
         private Vector2 position;
         public Vector2 Position 
         { 
@@ -27,18 +30,20 @@ namespace TimeWarpAdventures.Classes
 
         private Color color = Color.White;
         private int maxVelosity;
-        private int a;
+        private int acceleration;
         private int jump;
 
-        private int widthWindow = World.WindowWidth;
+        private static World world = GameState.world;
 
-        public Player(Texture2D backGround, int startPosX, int maxVelosity, int a, int jump) 
+        private int widthWindow = world.WindowWidth;
+
+        public Player(Texture2D backGround, int startPosX, int maxVelosity, int acceleration, int jump) 
         {
             BackGround = backGround;
             this.maxVelosity = maxVelosity;
-            this.a = a;
+            this.acceleration = acceleration;
             this.jump = jump;
-            Position = new Vector2(startPosX + World.PositionX, Ground.Top - BackGround.Height);
+            Position = new Vector2(startPosX + world.PositionX, Ground.Top - BackGround.Height);
         }
 
         private Vector2 GetSpeed(List<Direction> dirs)
@@ -47,13 +52,13 @@ namespace TimeWarpAdventures.Classes
             foreach(var dir in dirs)
             {
                 if (dir == Direction.Left)
-                    velocCorect.X -= a;
+                    velocCorect.X -= acceleration;
                 if (dir == Direction.Right)
-                    velocCorect.X += a;
+                    velocCorect.X += acceleration;
                 if (dir == Direction.Up)
                     velocCorect.Y -= jump;
                 if (dir == Direction.Down)
-                    velocCorect.Y += a;
+                    velocCorect.Y += acceleration;
             }
             return velocCorect;
         }
@@ -69,12 +74,12 @@ namespace TimeWarpAdventures.Classes
 
         private void UpdatePosition(Vector2 cortrect) 
         {
-
+            var friction = new Vector2(0.9f, 1);
             if (IsTouchingGround())
             {
                 if (Velosity.Y > 0)
                     cortrect.Y = -Velosity.Y;
-                Velosity = Velosity * new Vector2(0.9f, 1);
+                Velosity = Velosity * friction;
             }
             else
                 cortrect = new Vector2(0, Ground.Gravity.Y);
@@ -102,22 +107,30 @@ namespace TimeWarpAdventures.Classes
 
         private bool IsTouchingGround() => position.Y + BackGround.Height + Velosity.Y > Ground.Top;
 
-        private bool IsTouchingLeftBorder() => World.PositionX > 0 && position.X < World.LiteralBorder;
+        private bool IsTouchingLeftBorder() => world.PositionX > 0 && position.X < world.LiteralBorder;
 
         private bool IsTouchingRightBorder()
         {
-            var rightBorder = widthWindow - World.LiteralBorder - BackGround.Width;
-            return World.PositionX < World.Width - World.WindowWidth && position.X + Velosity.Y >= rightBorder;
+            var rightBorder = widthWindow - world.LiteralBorder - BackGround.Width;
+            return world.PositionX < world.Width - world.WindowWidth && position.X + Velosity.Y >= rightBorder;
         }
 
         private void ScrollWorld(bool touchBorder)
         {
             if (touchBorder)
             {
-                World.Scroll(Velosity.X);
+                world.Scroll(Velosity.X);
             }
             else
-                World.NoScroll();
+                world.NoScroll();
+        }
+
+        public void MonsterKick(Monster monster)
+        {
+            Velosity -= new Vector2(Velosity.X - 100 * monster.Velosity.X, 500);
+            Health -= monster.Hit;
+            if (Health < 0)
+                world.DiedPlayer();
         }
 
         public void Draw(SpriteBatch spriteBatch)

@@ -9,34 +9,35 @@ using SharpDX.Direct3D9;
 using static TimeWarpAdventures.Game1;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 using System.Threading;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
-    public static class World
+    public class World
     {
-        public static Player NowPlayer { get; set; }
+        public Player NowPlayer { get; set; }
 
-        public static int WindowWidth { get; set; }
-        public static int WindowHeight { get; set; }
-        private static int width;
-        public static int Width 
-        { 
-            get {  return width; } 
+        public int WindowWidth { get; set; }
+        public int WindowHeight { get; set; }
+        private int width;
+        public int Width
+        {
+            get { return width; }
             set { width = value; }
         }
-        public static float PositionX {  get; set; }
-        public static int LiteralBorder { get; set; }
+        public float PositionX { get; set; }
+        public int LiteralBorder { get; set; }
 
-        public static List<Player> Players = new List<Player>();
+        public List<Player> Players = new List<Player>();
 
-        public static List<Town> Towns = new List<Town>();
-        public static List<Monster> Monsters = new List<Monster>();
+        public List<Town> Towns = new List<Town>();
+        public List<Monster> Monsters = new List<Monster>();
 
-        private static float velisityScroll;
-        public static float VelisityScroll { get { return velisityScroll; } }
+        private float velisityScroll;
+        public float VelisityScroll { get { return velisityScroll; } }
 
 
-        public static void LoadContent()
+        public void LoadContent()
         {
             WindowWidth = 1920;
             WindowHeight = 1080;
@@ -45,42 +46,42 @@ namespace TimeWarpAdventures.Classes
             LoadGround();
         }
 
-        private static void LoadGround()
+        private void LoadGround()
         {
             Ground.Gravity = new Vector2(0, 2);
             Ground.Initialize();
         }
 
-        public static void NewPlayer()
+        public void NewPlayer()
         {
             var num = Players.IndexOf(NowPlayer);
             NowPlayer = Players[(num + 1) % Players.Count];
         }
 
-        public static void NewPlayer(int index)
+        public void NewPlayer(int index)
         {
             var num = index % Players.Count;
             NowPlayer = Players[num % Players.Count];
         }
 
-        public static void Scroll(float velosity)
+        public void Scroll(float velosity)
         {
             velisityScroll = velosity;
             PositionX += velisityScroll;
 
-            foreach(Player player in Players)
+            foreach (Player player in Players)
             {
                 player.Position = new Vector2(player.Position.X - velosity, player.Position.Y);
             }
         }
 
-        public static void NoScroll()
+        public void NoScroll()
         {
             velisityScroll = 0;
         }
 
 
-        public static bool CollideMonsterWithPlayer(Monster monster)
+        public bool CollideMonsterWithPlayer(Monster monster)
         {
             Rectangle boxPlayer = new Rectangle((int)NowPlayer.Position.X,
                 (int)NowPlayer.Position.Y, NowPlayer.BackGround.Width, NowPlayer.BackGround.Height);
@@ -90,8 +91,18 @@ namespace TimeWarpAdventures.Classes
             return boxPlayer.Intersects(boxMonster);
         }
 
+        public void DiedPlayer()
+        {
+            var index = Players.IndexOf(NowPlayer);
+            Players.RemoveAt(index);
+            if (Players.Count > 0)
+                NowPlayer = Players[index % Players.Count];
+            else
+                GameState.StartGame();
+        }
 
-        public static void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
+
+        public void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
         {
             Ground.Draw(spriteBatch);
 
@@ -105,10 +116,8 @@ namespace TimeWarpAdventures.Classes
                 player.Draw(spriteBatch);
         }
 
-        public static void Update(List<Direction> directs)
+        public void Update(List<Direction> directs)
         {
-            
-
             Ground.Update();
 
             foreach (var town in Towns)
@@ -117,7 +126,7 @@ namespace TimeWarpAdventures.Classes
             foreach (var monster in Monsters)
             {
                 if (CollideMonsterWithPlayer(monster))
-                    NowPlayer.Velosity -= new Vector2(2 * NowPlayer.Velosity.X + monster.Velosity, 100);
+                    NowPlayer.MonsterKick(monster);
                 monster.Update();
             }
                 

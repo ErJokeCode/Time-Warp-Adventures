@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using SharpDX.Direct2D1;
 using System.Security.Cryptography;
 using System.Reflection;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
@@ -27,9 +28,8 @@ namespace TimeWarpAdventures.Classes
     static class MainMenu
     {
         public static SpriteFont Font {  get; set; }
-        public static string[] MenuItems = { "main", "persons", "start" };
+        public static string[] MenuItems = { "Start", "SaveGame", "LoadGame" };
 
-        private static bool isOpenMenu = true;
         private static int selectedIndex { get; set; } = 0;
 
         public static void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch)
@@ -52,7 +52,6 @@ namespace TimeWarpAdventures.Classes
                 selectedIndex = nowSelectedIndex;
             if (isClick && nowSelectedIndex != -1)
                 HandleMenuSelection();
-
         }
 
         public static void HandleMenuSelection()
@@ -60,18 +59,16 @@ namespace TimeWarpAdventures.Classes
             switch (selectedIndex)
             {
                 case 0:
+                    GameState.StartGame();
                     break;
                 case 1:
+                    
                     break;
                 case 2:
-                    isOpenMenu = false;
+                    
                     break;
             }
         }
-
-        public static void OpenMenu() => isOpenMenu = true;
-
-        public static bool IsOpenMenu() => isOpenMenu;
 
         public static void СhangeSelectedIndex(int index) => selectedIndex = index;
 

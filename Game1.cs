@@ -5,6 +5,9 @@ using SharpDX.Direct2D1;
 using TimeWarpAdventures.Classes;
 using System;
 using TimeWarpAdventures.Contriller;
+using TimeWarpAdventures.Models;
+using Microsoft.Xna.Framework.Content;
+using System.Reflection.Metadata;
 
 namespace TimeWarpAdventures
 {
@@ -12,6 +15,8 @@ namespace TimeWarpAdventures
     {
         private GraphicsDeviceManager _graphics;
         private Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch;
+        private GameManager manager;
+        private GameState gameState;
 
         public enum Direction
         {
@@ -31,7 +36,6 @@ namespace TimeWarpAdventures
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             _graphics.PreferredBackBufferWidth = 1920;
             _graphics.PreferredBackBufferHeight = 1080;
 
@@ -42,31 +46,17 @@ namespace TimeWarpAdventures
         protected override void LoadContent()
         {
             _spriteBatch = new Microsoft.Xna.Framework.Graphics.SpriteBatch(GraphicsDevice);
-            MainMenu.Font = Content.Load<SpriteFont>("Font");
-
-            World.LoadContent();
-            
-
-            var player1 = new Player(Content.Load<Texture2D>("Player"), 1000, 10, 2, 30);
-            var player2 = new Player(Content.Load<Texture2D>("Player"), 700, 10, 2, 30);
-
-            Ground.BackGround = Content.Load<Texture2D>("Ground");
-
-            var town = new Town(100, 1, Content.Load<Texture2D>("Ellipse"));
-            var monster = new Monster(Content.Load<Texture2D>("SmallMonster"), 0, 500);
-
-            World.Players.Add(player1);
-            World.Players.Add(player2);
-            World.NowPlayer = player1;
-
-            World.Towns.Add(town);
-            World.Monsters.Add(monster);
+            manager = new GameManager(Content);
+            gameState = manager.GetState();
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Home))
+                manager.SaveGameState();
 
             Controller.Update();
             
@@ -79,10 +69,7 @@ namespace TimeWarpAdventures
 
             _spriteBatch.Begin();
 
-            if (MainMenu.IsOpenMenu())
-                MainMenu.Draw(_spriteBatch);
-            else
-                World.Draw(_spriteBatch);
+            gameState.Draw(_spriteBatch);
 
             _spriteBatch.End();
 

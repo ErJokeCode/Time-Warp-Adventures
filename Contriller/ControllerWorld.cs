@@ -7,6 +7,7 @@ using System;
 using static TimeWarpAdventures.Game1;
 using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Contriller;
 internal class ControllerWorld
@@ -17,9 +18,9 @@ internal class ControllerWorld
     {
         var directs = GetDerects();
 
-        if (!MainMenu.IsOpenMenu())
+        if (!GameState.IsPause())
         {
-            World.Update(directs);
+            GameState.world.Update(directs);
         }
     }
 
@@ -28,7 +29,7 @@ internal class ControllerWorld
         if (Keyboard.GetState().IsKeyDown(Keys.Tab) && !isHoldingTab)
         {
             isHoldingTab = true;
-            World.NewPlayer();
+            GameState.world.NewPlayer();
         }
         else if (Keyboard.GetState().IsKeyUp(Keys.Tab) && isHoldingTab)
             isHoldingTab = false;
@@ -38,15 +39,15 @@ internal class ControllerWorld
     {
         var directs = new System.Collections.Generic.List<Direction>();
 
-        if (Keyboard.GetState().IsKeyDown(Keys.Right))
+        if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
             directs.Add(Direction.Right);
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Left))
+        if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
             directs.Add(Direction.Left);
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.Up))
+        if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
             directs.Add(Direction.Up);
         }

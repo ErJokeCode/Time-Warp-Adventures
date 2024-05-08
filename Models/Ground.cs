@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using SpriteBatch = SharpDX.Direct2D1.SpriteBatch;
 using SharpDX.Direct2D1;
 using System;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
     public class Ground
     {
+        private static World World = GameState.world;
         public static Texture2D BackGround { get; set; }
         
         public static Vector2 Gravity { get; set; }

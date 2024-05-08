@@ -41,14 +41,14 @@ public class GameState
         world.Monsters.Add(monster);
     }
 
-    public void StartGame()
+    public static void StartGame()
     {
         if (world.Players.Count > 0) pause = false;
     }
 
-    public void StopGame() => pause = true;
+    public static void StopGame() => pause = true;
 
-    public bool IsPause() => pause;
+    public static bool IsPause() => pause;
 
     public void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch)
     {

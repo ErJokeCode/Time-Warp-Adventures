@@ -15,7 +15,7 @@ class ControllerMenu
 {
     private static bool isHoldingInMenu = false;
 
-    public static void UpdateMenu(GameManager _gameManager)
+    public static void UpdateMenu(GameManagerDate _gameManager)
     {
         var navigate = GetNavigating();
 

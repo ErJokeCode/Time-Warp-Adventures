@@ -41,7 +41,7 @@ namespace TimeWarpAdventures.Classes
             }
         }
 
-        public static void Update(int navigate, Vector2 mousePosition, GameManager _gameManager, bool isClick = false)
+        public static void Update(int navigate, Vector2 mousePosition, GameManagerDate _gameManager, bool isClick = false)
         {
             if (selectedIndex + navigate >= 0 && selectedIndex + navigate < MenuItems.Length)
                 selectedIndex += navigate;
@@ -54,7 +54,7 @@ namespace TimeWarpAdventures.Classes
                 HandleMenuSelection(_gameManager);
         }
 
-        public static void HandleMenuSelection(GameManager _gameManager)
+        public static void HandleMenuSelection(GameManagerDate _gameManager)
         {
             switch (selectedIndex)
             {
@@ -65,7 +65,7 @@ namespace TimeWarpAdventures.Classes
                     _gameManager.SaveGameState();
                     break;
                 case 2:
-                    
+                    _gameManager.RestoreDate();
                     break;
             }
         }

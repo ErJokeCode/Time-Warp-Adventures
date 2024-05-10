@@ -13,11 +13,23 @@ using TimeWarpAdventures.Classes;
 namespace TimeWarpAdventures.Models;
 public class GameState
 {
-
-    public Microsoft.Xna.Framework.Vector2 Position {  get; set; }
+    public WorldInfo World {  get; set; }
 
     public GameState()
     {
-        Position = new Vector2(1000, 0);
+        World = new WorldInfo();
+    }
+
+    public void LoadTexture(ContentManager Content)
+    {
+        foreach(var player in World.Players)
+        {
+            player.AddBackGround(Content);
+        }
+
+        foreach(var monster in World.Monstres) 
+        {
+            monster.AddBackGround(Content);
+        }
     }
 }

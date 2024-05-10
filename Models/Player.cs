@@ -8,109 +8,65 @@ using static TimeWarpAdventures.Game1;
 using System.Diagnostics.Contracts;
 using System.Threading;
 using TimeWarpAdventures.Models;
+using System.Reflection.Metadata;
+using Microsoft.Xna.Framework.Content;
 
 namespace TimeWarpAdventures.Classes
 {
-    public class Player
+    public class Player : Essence
     {
-        public int Health { get; set; } = 100; 
+        public int Health { get; set; } = 100;
 
-        private Vector2 position;
-        public Vector2 Position 
-        { 
-            get { return position; } 
-            set {  position = value; } 
-        }
-
-        public Texture2D BackGround {  get; }
-
-        private Vector2 velosity;
-        public Vector2 Velosity { get { return velosity; } set { velosity = value; } }
-
+        private Texture2D backGround;
+        public string NameTexture { get; set; }
 
         private Color color = Color.White;
-        private int maxVelosity;
-        private int acceleration;
-        private int jump;
 
         private int widthWindow = World.WindowWidth;
 
         public Player(Texture2D backGround, int startPosX, int maxVelosity, int acceleration, int jump) 
         {
-            BackGround = backGround;
-            this.maxVelosity = maxVelosity;
-            this.acceleration = acceleration;
-            this.jump = jump;
-            Position = new Vector2(startPosX + World.PositionX, Ground.Top - BackGround.Height);
+            this.backGround = backGround;
+            this.MaxVelosity = maxVelosity;
+            this.Acceleration = acceleration;
+            this.Jump = jump;
+            Position = new Vector2(startPosX + World.PositionX, backGround.Height);
+            Width = this.backGround.Width;
+            Height = this.backGround.Height;
+            NameTexture = backGround.Name;
         }
 
-        private Vector2 GetSpeed(List<Direction> dirs)
+        public Player()
         {
-            var velocCorect = new Vector2(0, 0);
-            foreach(var dir in dirs)
-            {
-                if (dir == Direction.Left)
-                    velocCorect.X -= acceleration;
-                if (dir == Direction.Right)
-                    velocCorect.X += acceleration;
-                if (dir == Direction.Up)
-                    velocCorect.Y -= jump;
-                if (dir == Direction.Down)
-                    velocCorect.Y += acceleration;
-            }
-            return velocCorect;
+            MaxVelosity = 10;
+            Acceleration = 2;
+            Jump = 30;
+            Position = new Vector2(700 + World.PositionX, -200); 
         }
 
-        private Vector2 GetTrueSpeed(Vector2 vect)
+        public void AddBackGround(ContentManager content)
         {
-            vect.Y = vect.Y < -jump ? -jump : vect.Y;
-            vect.X = vect.X > maxVelosity ? maxVelosity : vect.X;
-            vect.X = vect.X < -maxVelosity ? -maxVelosity : vect.X;
-
-            return vect;
+            backGround = content.Load<Texture2D>(NameTexture);
+            Width = backGround.Width;
+            Height = backGround.Height;
         }
 
-        private void UpdatePosition(Vector2 cortrect) 
+        public Texture2D GetBackGround() => backGround;
+
+        private void UpdateScroll() 
         {
-            var friction = new Vector2(0.9f, 1);
-            if (IsTouchingGround())
-            {
-                if (Velosity.Y > 0)
-                    cortrect.Y = -Velosity.Y;
-                Velosity = Velosity * friction;
-            }
-            else
-                cortrect = new Vector2(0, Ground.Gravity.Y);
-
-            Velosity += cortrect;
-            Velosity = GetTrueSpeed(Velosity);
-
-            if (Velosity.X < 0 && position.X > 0)
+            if (Velosity.X < 0 && Position.X > 0)
                 ScrollWorld(IsTouchingLeftBorder());
-            else if (Velosity.X > 0 && position.X < widthWindow - BackGround.Width)
+            else if (Velosity.X > 0 && Position.X < widthWindow - Width)
                 ScrollWorld(IsTouchingRightBorder());
-            else if (position.X + Velosity.X <= 0 && Velosity.X != 0) 
-            {
-                position.X = 0;
-                velosity.X = 0;
-            }
-            else if (position.X + Velosity.X >= widthWindow - BackGround.Width && Velosity.X != 0)
-            {
-                position.X = widthWindow - BackGround.Width;
-                velosity.X = 0;
-            }
-
-            position += Velosity;
         }
 
-        private bool IsTouchingGround() => position.Y + BackGround.Height + Velosity.Y > Ground.Top;
-
-        private bool IsTouchingLeftBorder() => World.PositionX > 0 && position.X < World.LiteralBorder;
+        private bool IsTouchingLeftBorder() => World.PositionX > 0 && Position.X < World.LiteralBorder;
 
         private bool IsTouchingRightBorder()
         {
-            var rightBorder = widthWindow - World.LiteralBorder - BackGround.Width;
-            return World.PositionX < World.Width - World.WindowWidth && position.X + Velosity.Y >= rightBorder;
+            var rightBorder = widthWindow - World.LiteralBorder - Width;
+            return World.PositionX < World.Width - World.WindowWidth && Position.X + Velosity.Y >= rightBorder;
         }
 
         private void ScrollWorld(bool touchBorder)
@@ -123,6 +79,20 @@ namespace TimeWarpAdventures.Classes
                 World.NoScroll();
         }
 
+        public void LimitWorld()
+        {
+            if (Position.X + Velosity.X <= 0 && Velosity.X != 0)
+            {
+                Position = new Vector2(0, Position.Y);
+                Velosity = new Vector2(0, Velosity.Y);
+            }
+            else if (Position.X + Velosity.X >= widthWindow - Width && Velosity.X != 0)
+            {
+                Position = new Vector2(widthWindow - Width, Position.Y);
+                Velosity = new Vector2(0, Velosity.Y);
+            }
+        }
+
         public void MonsterKick(Monster monster)
         {
             Velosity -= new Vector2(Velosity.X - 100 * monster.Velosity.X, 500);
@@ -133,12 +103,15 @@ namespace TimeWarpAdventures.Classes
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(BackGround, Position, color);
+            spriteBatch.Draw(backGround, Position, color);
         }
 
         public void Update(List<Direction> dirs)
         {
-            UpdatePosition(GetSpeed(dirs));
+            UpdateVelosity(dirs);
+            UpdateScroll();
+            LimitWorld();
+            Position += Velosity;
         }
     }
 }

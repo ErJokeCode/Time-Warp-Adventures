@@ -14,12 +14,12 @@ internal class ControllerWorld
 {
     private static bool isHoldingTab = false;
 
-    public static void UpdateWorld(GameManager _gameManager)
+    public static void UpdateWorld(GameManagerDate _gameManager)
     {
         var directs = GetDerects();
 
         if (!World.IsPause())
-            World.Update(directs, _gameManager);
+            World.Update(directs);
 
         if (Keyboard.GetState().IsKeyDown(Keys.Home))
             _gameManager.SaveGameState();

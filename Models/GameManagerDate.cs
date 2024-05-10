@@ -1,21 +1,25 @@
 ﻿using Microsoft.Xna.Framework.Content;
+using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TimeWarpAdventures.Classes;
 
 namespace TimeWarpAdventures.Models;
-public class GameManager
+public class GameManagerDate
 {
     private const string SaveFilePath = "game_state.xml";
     private GameState gameState;
+    private ContentManager content;
 
-    public GameManager()
+    public GameManagerDate(ContentManager content)
     {
+        this.content = content;
         LoadGameState();
     }
 
@@ -37,11 +41,30 @@ public class GameManager
 
     public void SaveGameState()
     {
+        gameState.World = new WorldInfo();
+
         XmlSerializer serializer = new XmlSerializer(typeof(GameState));
         using (FileStream stream = new FileStream(SaveFilePath, FileMode.Create))
         {
             serializer.Serialize(stream, gameState);
         }
+    }
+
+    public void LoadDate()
+    {
+        World.Players = gameState.World.Players;
+        World.NowPlayer = gameState.World.Players[0];
+
+        World.Monsters = gameState.World.Monstres;
+
+        World.PositionX = gameState.World.Position;
+    }
+
+    public void RestoreDate()
+    {
+        LoadGameState();
+        gameState.LoadTexture(content);
+        LoadDate();
     }
 
     public GameState GetState() => gameState;

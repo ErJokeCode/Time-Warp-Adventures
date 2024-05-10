@@ -13,16 +13,13 @@ namespace TimeWarpAdventures.Contriller;
 
 static class Controller
 {
-    public static void Update(GameManager _gameManager)
+    public static void Update(GameManagerDate _gameManager)
     {
         ControllerMenu.UpdateMenu(_gameManager);
 
         ControllerWorld.UpdateWorld(_gameManager);
 
         ControllerWorld.ChangePlayer();
-
     }
-
-
 }
 

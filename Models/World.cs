@@ -13,9 +13,24 @@ using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.Classes
 {
+    public class WorldInfo
+    {
+        public float Position { get { return World.PositionX; } }
+        //public int WindowWidth { get { return World.WindowWidth; } }
+        //public int WindowHeight { get { return World.WindowHeight; } }
+        public int Width { get { return World.Width; } set { } }
+        //public int Border { get { return World.LiteralBorder; } }
+
+        public Player NowPlayer { get { return World.NowPlayer; } }
+        public List<Player> Players { get {  return World.Players; } }
+        public List<Monster> Monstres { get { return World.Monsters; } }
+    }
+
     public static class World
     {
         private static bool pause = true;
+
+        public static HealthBar HealthBar { get; set; }
 
         public static Player NowPlayer { get; set; }
 
@@ -32,19 +47,22 @@ namespace TimeWarpAdventures.Classes
 
         public static List<Player> Players = new List<Player>();
 
-        public static List<Town> Towns = new List<Town>();
         public static List<Monster> Monsters = new List<Monster>();
 
         private static float velisityScroll;
         public static float VelisityScroll { get { return velisityScroll; } }
 
 
-        public static void LoadContent()
+        public static void LoadContent(GraphicsDevice graphicsDevice)
         {
             WindowWidth = 1920;
             WindowHeight = 1080;
             Width = 3000;
             LiteralBorder = WindowWidth / 10;
+
+            HealthBar = new HealthBar();
+            HealthBar.AddTexture(graphicsDevice);
+
             LoadGround();
         }
 
@@ -82,13 +100,12 @@ namespace TimeWarpAdventures.Classes
             velisityScroll = 0;
         }
 
-
         public static bool CollideMonsterWithPlayer(Monster monster)
         {
             Rectangle boxPlayer = new Rectangle((int)NowPlayer.Position.X,
-                (int)NowPlayer.Position.Y, NowPlayer.BackGround.Width, NowPlayer.BackGround.Height);
-            Rectangle boxMonster = new Rectangle((int)(monster.AbsolutePosition.X),
-                (int)monster.WindowPosition.Y, monster.BackGround.Width, monster.BackGround.Height);
+                (int)NowPlayer.Position.Y, NowPlayer.Width, NowPlayer.Height);
+            Rectangle boxMonster = new Rectangle((int)(monster.Position.X),
+                (int)monster.Position.Y, monster.Width, monster.Height);
 
             return boxPlayer.Intersects(boxMonster);
         }
@@ -100,7 +117,7 @@ namespace TimeWarpAdventures.Classes
             if (Players.Count > 0)
                 NowPlayer = Players[index % Players.Count];
             else
-                StartGame();
+                StopGame();
         }
 
         public static void StartGame()
@@ -112,30 +129,9 @@ namespace TimeWarpAdventures.Classes
 
         public static bool IsPause() => pause;
 
-
-        public static void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
+        public static void Update(List<Direction> directs)
         {
-            Ground.Draw(spriteBatch);
-
-            foreach (var town in Towns)
-                town.Draw(spriteBatch);
-
-            foreach (var monster in Monsters)
-                monster.Draw(spriteBatch);
-
-            foreach (var player in Players)
-                player.Draw(spriteBatch);
-        }
-
-        public static void Update(List<Direction> directs, GameManager _gameManager)
-        {
-            var gameState = _gameManager.GetState();
-            gameState.Position = NowPlayer.Position;
-
             Ground.Update();
-
-            foreach (var town in Towns)
-                town.Update();
 
             foreach (var monster in Monsters)
             {

@@ -5,10 +5,11 @@ using SharpDX.Direct2D1;
 using TimeWarpAdventures.Classes;
 using System;
 using TimeWarpAdventures.Contriller;
-using TimeWarpAdventures.Models;
 using TimeWarpAdventures.View;
 using Microsoft.Xna.Framework.Content;
 using System.Reflection.Metadata;
+using System.Net.Mail;
+using TimeWarpAdventures.WorkWithData;
 
 namespace TimeWarpAdventures
 {
@@ -17,14 +18,22 @@ namespace TimeWarpAdventures
         private GraphicsDeviceManager _graphics;
         private Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch;
         private GameManagerDate _gameManager;
+        private View.View viewer;
 
         public enum Direction
         {
-            Empty,
             Right, 
             Left, 
             Up,
             Down
+        }
+
+        public enum Type
+        {
+            Ground, 
+            Box, 
+            Empty, 
+            Monster
         }
 
         public Game1()
@@ -32,55 +41,51 @@ namespace TimeWarpAdventures
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            //Window.AllowUserResizing = true;
         }
 
         protected override void Initialize()
         {
             _graphics.PreferredBackBufferWidth = 1920;
             _graphics.PreferredBackBufferHeight = 1080;
-
             _graphics.ApplyChanges();
+
+            //Window.ClientSizeChanged += Window_ClientSizeChanged;
             base.Initialize();
+        }
+
+        private void Window_ClientSizeChanged(object sender, EventArgs e)
+        {
+            World.WindowWidth = Window.ClientBounds.Width;
+            World.WindowHeight = Window.ClientBounds.Height;
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new Microsoft.Xna.Framework.Graphics.SpriteBatch(GraphicsDevice);
+            viewer = new View.View(_spriteBatch, _graphics);
 
-            MainMenu.Font = Content.Load<SpriteFont>("Font");
-            Ground.BackGround = Content.Load<Texture2D>("Ground");
-            World.LoadContent(GraphicsDevice);
-           
+            var loaderContent = new LoaderContent(Content, _graphics);
 
+            loaderContent.LoadMenu();
+            loaderContent.LoadWorld();
 
-            _gameManager = new GameManagerDate(Content);
+            _gameManager = new GameManagerDate();
             var gameState = _gameManager.GetState();
             
 
-            if(gameState.World.Players.Count != 0)
+            if(gameState != null)
             {
-                _gameManager.LoadDate();
-                gameState.LoadTexture(Content);
+                _gameManager.LoadDate(gameState);
+                loaderContent.LoadFromHistory();
             }     
             else
-            {
-                var player1 = new Player(Content.Load<Texture2D>("Player"), 1000, 10, 2, 30); 
-                var player2 = new Player(Content.Load<Texture2D>("Player"), 700, 10, 2, 30);
-                World.Players.Add(player1);
-                World.Players.Add(player2);
-                World.NowPlayer = player1;
-
-                var monster = new Monster(Content.Load<Texture2D>("SmallMonster"), 0, 500, 10, 10);
-                World.Monsters.Add(monster);
-            }
+                loaderContent.AddItemsInWorld();
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
-            Controller.Update(_gameManager); 
+            Controller.Update(_gameManager, this, gameTime);
 
             base.Update(gameTime);
         }
@@ -91,7 +96,7 @@ namespace TimeWarpAdventures
 
             _spriteBatch.Begin();
 
-            View.View.Draw(_spriteBatch);
+            viewer.Draw();
 
             _spriteBatch.End();
 

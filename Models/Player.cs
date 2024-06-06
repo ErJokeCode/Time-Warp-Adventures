@@ -10,48 +10,30 @@ using System.Threading;
 using TimeWarpAdventures.Models;
 using System.Reflection.Metadata;
 using Microsoft.Xna.Framework.Content;
+using System.Linq;
 
 namespace TimeWarpAdventures.Classes
 {
     public class Player : Essence
     {
-        public int Health { get; set; } = 100;
-
-        private Texture2D backGround;
-        public string NameTexture { get; set; }
+        public int Lamps { get; set; } = 0;
+        public bool IsActiveAI { get; set; }
 
         private Color color = Color.White;
 
+        private AI ai = new AI();
+
         private int widthWindow = World.WindowWidth;
 
-        public Player(Texture2D backGround, int startPosX, int maxVelosity, int acceleration, int jump) 
+        public Player(Texture2D backGround, int countFrameWidth, int countFrameHeight, int startPosX, int maxVelosity, int acceleration, int jump) 
+            : base(backGround, countFrameWidth, countFrameHeight, new Vector2(startPosX + World.PositionX, backGround.Height), maxVelosity)
         {
-            this.backGround = backGround;
-            this.MaxVelosity = maxVelosity;
             this.Acceleration = acceleration;
             this.Jump = jump;
-            Position = new Vector2(startPosX + World.PositionX, backGround.Height);
-            Width = this.backGround.Width;
-            Height = this.backGround.Height;
-            NameTexture = backGround.Name;
         }
 
-        public Player()
-        {
-            MaxVelosity = 10;
-            Acceleration = 2;
-            Jump = 30;
-            Position = new Vector2(700 + World.PositionX, -200); 
-        }
+        public Player() { }
 
-        public void AddBackGround(ContentManager content)
-        {
-            backGround = content.Load<Texture2D>(NameTexture);
-            Width = backGround.Width;
-            Height = backGround.Height;
-        }
-
-        public Texture2D GetBackGround() => backGround;
 
         private void UpdateScroll() 
         {
@@ -93,25 +75,76 @@ namespace TimeWarpAdventures.Classes
             }
         }
 
-        public void MonsterKick(Monster monster)
+        private void GetLamp()
         {
-            Velosity -= new Vector2(Velosity.X - 100 * monster.Velosity.X, 500);
-            Health -= monster.Hit;
-            if (Health < 0)
-                World.DiedPlayer();
+            var rectPlayer = new Rectangle((int)(Position.X), (int)(Position.Y), Width, Height);
+            foreach (var lamp in World.Lamps)
+            {
+                var rectLamp = new Rectangle((int)(lamp.Position.X - World.PositionX), (int)(lamp.Position.Y),
+                lamp.Width, lamp.Height);
+                if (rectPlayer.Intersects(rectLamp))
+                {
+                    if (lamp.IsClicked)
+                    {
+                        lamp.Hover();
+                        continue;
+                    }
+                    Lamps += 1;
+                    World.Lamps.Remove(lamp);
+                    break;
+                }
+                else if(lamp.IsClicked && lamp.IsHover()) 
+                    lamp.NotHover();
+            }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void ChangeStateAI() => IsActiveAI = !IsActiveAI;
+
+        public void NotActiveAi() => IsActiveAI = false;
+
+        public void ActiveHit() => IsHit = true;
+
+        public bool IntersectionWithThing(Thing thing)
         {
-            spriteBatch.Draw(backGround, Position, color);
+            var rectPlayer = new Rectangle((int)(Position.X), (int)(Position.Y), Width, Height);
+            var rectThing = new Rectangle((int)(thing.Position.X - World.PositionX), (int)(thing.Position.Y),
+                thing.Width, thing.Height);
+            return rectPlayer.Intersects(rectThing);
         }
 
-        public void Update(List<Direction> dirs)
+        private Lamp GetLampWithMinDist() =>
+            World.Lamps.Where(lamp => !lamp.IsClicked)
+            .OrderBy(x => Vector2.Distance(Position, x.Position))
+            .FirstOrDefault();
+
+        public void Update(GameTime gameTime, List<Direction> dirs = null)
         {
-            UpdateVelosity(dirs);
-            UpdateScroll();
-            LimitWorld();
-            Position += Velosity;
+            if(dirs != null)
+            {
+                if (IsActiveAI)
+                {
+                    var lamp = GetLampWithMinDist();
+                    if (lamp != null)
+                        dirs = ai.GetDirectionsTo(World.NowLevel.GetMap(), this, lamp, World.Monsters);
+                }
+                    
+                UpdateFrame(gameTime);
+                UpdateVelosity(dirs);
+                UpdateScroll();
+                LimitWorld();
+                Position += Velosity;
+                GetLamp();
+            }
+            else
+            {
+                UpdateFrame(gameTime);
+                if(World.Lamps.Count > 0 && IsActiveAI)
+                    dirs = ai.GetDirectionsTo(World.NowLevel.GetMap(), this, GetLampWithMinDist(), World.Monsters);
+                else
+                    dirs = new List<Direction>();
+                UpdateVelosity(dirs);
+                Position += Velosity;
+            }
         }
     }
 }

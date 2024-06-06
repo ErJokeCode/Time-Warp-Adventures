@@ -7,17 +7,17 @@ using System;
 using static TimeWarpAdventures.Game1;
 using SharpDX.Direct3D9;
 using SharpDX.Mathematics.Interop;
-using TimeWarpAdventures.Models;
+using TimeWarpAdventures.WorkWithData;
 
 namespace TimeWarpAdventures.Contriller;
 
 static class Controller
 {
-    public static void Update(GameManagerDate _gameManager)
+    public static void Update(GameManagerDate _gameManager, Game game, GameTime gameTime)
     {
-        ControllerMenu.UpdateMenu(_gameManager);
+        ControllerMenu.UpdateMenu(_gameManager, game);
 
-        ControllerWorld.UpdateWorld(_gameManager);
+        ControllerWorld.UpdateWorld(_gameManager, gameTime);
 
         ControllerWorld.ChangePlayer();
     }

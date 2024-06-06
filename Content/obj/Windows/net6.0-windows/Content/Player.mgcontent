@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <SourceFile>D:/URFU/Programming/C# 2 часть/Time-Warp-Adventures/Content/Player.png</SourceFile>
-  <SourceTime>2024-04-11T17:23:21.5022517+05:00</SourceTime>
+  <SourceFile>C:/Users/eriks/Downloads/Player.png</SourceFile>
+  <SourceTime>2024-05-16T01:51:16.4567748+05:00</SourceTime>
   <DestFile>D:/URFU/Programming/C# 2 часть/Time-Warp-Adventures/Content/bin/Windows/Content/Player.xnb</DestFile>
-  <DestTime>2024-05-03T22:55:56.3774735+05:00</DestTime>
+  <DestTime>2024-05-16T01:52:02.3670837+05:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T16:44:56+05:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

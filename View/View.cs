@@ -1,38 +1,31 @@
-﻿using SharpDX.Direct2D1;
+﻿using Microsoft.Xna.Framework;
+using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TimeWarpAdventures.Classes;
+using TimeWarpAdventures.Models;
 
 namespace TimeWarpAdventures.View;
-static class View
+public class View
 {
-    public static Microsoft.Xna.Framework.Graphics.SpriteBatch SpriteBatch;
+    private Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch;
+    private GraphicsDeviceManager _graphics;
 
-    public static void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch)
+    public View(Microsoft.Xna.Framework.Graphics.SpriteBatch _spriteBatch, GraphicsDeviceManager _graphics) 
     {
-        SpriteBatch = _spriteBatch;
-        if (World.IsPause())
-            MainMenu.Draw(SpriteBatch);
-        else
-            WorldDraw();
+        this._spriteBatch = _spriteBatch;
+        this._graphics = _graphics;
     }
 
-    private static void WorldDraw()
+    public void Draw()
     {
-        var monsters = World.Monsters;
-        var players = World.Players;
-        Ground.Draw(SpriteBatch);
-
-        foreach (var monster in monsters)
-            monster.Draw(SpriteBatch);
-
-        foreach (var player in players)
-            player.Draw(SpriteBatch);
-
-        World.HealthBar.Draw(SpriteBatch);
+        if (World.IsPause())
+            ViewMenu.Draw(_spriteBatch, _graphics);
+        else
+            ViewWorld.Draw(_spriteBatch);
     }
 }
 

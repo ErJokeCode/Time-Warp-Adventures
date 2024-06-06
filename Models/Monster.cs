@@ -11,80 +11,62 @@ using TimeWarpAdventures.Models;
 using Microsoft.Xna.Framework.Content;
 using SharpDX.Direct3D9;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
+using System.Threading;
 
 namespace TimeWarpAdventures.Classes
 {
     public class Monster : Essence
     {
-        public int Health { get; set; } = 10;
-
-        public int Hit { get; set; } = 0;
-
-        private Texture2D backGround;
-        public string NameTexture { get; set; }
-
         public int canView { get; }
 
-        private Color color;
-        private Random rnd;
+        private int currentTime;
+        private const int changeMoveTime = 3000;
+        private Random rnd = new Random();
+        private bool moveToRight = false;
 
-        public Monster(Texture2D backGround, int position, int canView, int health, int hit)
+        private AI ai = new AI();
+
+        public Monster(Texture2D backGround, int countFrameWidth, int countFrameHeight, int position, int canView, 
+            int health, int hit, int acceleration = 1, int maxVelosity = 4, int jamp = 20)
+            :base(backGround, countFrameWidth, countFrameHeight, new Vector2(position, 0), maxVelosity)
         {
-            Acceleration = 1;
-            MaxVelosity = 4;
-
-            this.backGround = backGround;
+            Acceleration = acceleration;
+            Jump = jamp;
             this.canView = canView;
-            color = Color.White;
-            rnd = new Random();
             Health = health;
             Hit = hit;
-            NameTexture = backGround.Name;
-            Width = backGround.Width;
-            Height = backGround.Height;
         }
 
-        public Monster()
+        public Monster() : base()
         {
             this.canView = 500;
-            color = Color.White;
-            rnd = new Random();
             Health = 100;
             Hit = 100;
         }
 
-        public void AddBackGround(ContentManager content)
+        private List<Direction> Persuit(Player player)
         {
-            backGround = content.Load<Texture2D>(NameTexture);
-            Width = backGround.Width;
-            Height = backGround.Height;
-        }
-
-        private bool IsPersuit = false;
-
-        private List<Direction> Persuit()
-        {
-            var dirs = new List<Direction>();
-            var player = World.NowPlayer;
-
-            if (Math.Abs(Position.X - player.Position.X) < canView)
-            {
-                IsPersuit = true;
-                if (Position.X > player.Position.X)
-                    dirs.Add(Direction.Left);
-                else if (Position.X < player.Position.X)
-                    dirs.Add(Direction.Right);
-            }
-            else
-                IsPersuit = false;
+            var kill = 200;
+            var raznVect = World.NowPlayer.Position - Position;
+            var correct = new Vector2(World.NowPlayer.Width / 2 - Width/2, World.NowPlayer.Height / 2 - Height/2);
+            raznVect += correct;
+            var makeKill = Math.Sqrt(raznVect.X * raznVect.X + raznVect.Y * raznVect.Y) <= kill;
+            var dirs = ai.GetDirectionsTo(World.NowLevel.GetMap(), this, player);
+            if (!IsHit && makeKill) 
+                IsHit = true;
+            else if(IsHit && !makeKill) IsHit = false;
             return dirs;
         }
+
+        private bool IsFindPlayer(Player player) => Math.Abs(Position.X - player.Position.X) < canView;
 
         private List<Direction> CreateVelosity()
         {
             var dirs = new List<Direction>();
-            dirs.Add(Math.Round(rnd.NextDouble() * 2 - 1) > 0 ? Direction.Right : Direction.Left);
-            dirs.Add(Math.Round(rnd.NextDouble() * 2 - 1) > 0 ? Direction.Up : Direction.Down);
+            if(moveToRight)
+                dirs.Add(Direction.Right);
+            else
+                dirs.Add(Direction.Left);
             return dirs;
         }
 
@@ -92,27 +74,33 @@ namespace TimeWarpAdventures.Classes
         {
             if (World.PositionX + Position.X + Velosity.X <= 0 && Velosity.X != 0)
             {
-                Position = new Vector2(0, Position.Y);
+                Position = new Vector2(-World.PositionX, Position.Y);
                 Velosity = new Vector2(0, Velosity.Y);
             }
-            else if (Position.X + Velosity.X >= World.Width - World.PositionX- Width && Velosity.X != 0)
+            else if (Position.X + Velosity.X + World.PositionX >= World.Width - Width && Velosity.X != 0)
             {
                 Position = new Vector2(World.Width - World.PositionX - Width, Position.Y);
                 Velosity = new Vector2(0, Velosity.Y);
             }
         }
 
-        public void Draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch)
+        public void Update(GameTime gameTime)
         {
-            spriteBatch.Draw(backGround, Position, color);
-        }
+            currentTime += gameTime.ElapsedGameTime.Milliseconds;
 
-        public void Update()
-        {
-            UpdateVelosity(Persuit());
-            if (!IsPersuit)
+            if(currentTime > changeMoveTime)
+            {
+                moveToRight = (rnd.NextDouble() * 2 - 1) >= 0;
+                currentTime = 0;
+            } 
+
+            if (IsFindPlayer(World.NowPlayer))
+                UpdateVelosity(Persuit(World.NowPlayer));
+            else
                 UpdateVelosity(CreateVelosity());
             Position += Velosity - new Vector2(World.VelisityScroll, 0);
+
+            UpdateFrame(gameTime);
             LimitWorld();
         }
     }
